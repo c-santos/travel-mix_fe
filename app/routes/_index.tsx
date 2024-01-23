@@ -1,62 +1,34 @@
-import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json, redirect, redirectDocument } from "@remix-run/node";
-import { Button, List, ListItem, ListItemText, TextField } from "@mui/material";
-import { Form, useLoaderData } from "@remix-run/react";
-import axios, { AxiosResponse } from "axios";
-import { Artist } from "./artist";
-import { LoaderFunctionArgs } from "react-router";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from '@remix-run/node';
+import { redirect } from '@remix-run/node';
+import { Form, useLoaderData } from '@remix-run/react';
+import axios from 'axios';
+import { getSession } from '~/session';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: 'Remix App' },
+    { name: 'description', content: 'Welcome to Remix!' },
   ];
 };
 
-export async function action({ request }:ActionFunctionArgs) {
-  
+export async function action({ request }: ActionFunctionArgs) {
+  // Login
   const response = await axios.get('http://localhost:3005/spotify-auth/login');
-  const spotifyAuthUrl = response.data
+  const spotifyAuthUrl = response.data;
 
-
-  return redirect(spotifyAuthUrl)
+  return redirect(spotifyAuthUrl);
 }
 
-
 export default function Index() {
-
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <h1>Welcome to Remix</h1>
-      <ul>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/blog"
-            rel="noreferrer"
-          >
-            15m Quickstart Blog Tutorial
-          </a>
-        </li>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/jokes"
-            rel="noreferrer"
-          >
-            Deep Dive Jokes App Tutorial
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="https://remix.run/docs" rel="noreferrer">
-            Remix Docs
-          </a>
-
-          <Form method="post" >
-            <button type="submit">Log in to Spotify</button>
-          </Form>
-        </li>
-      </ul>
+    <div style={{ fontFamily: 'system-ui, sans-serif', lineHeight: '1.8' }}>
+      <Form method="post">
+        <button type="submit">Log in to Spotify</button>
+      </Form>
     </div>
   );
 }
