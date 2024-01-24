@@ -100,8 +100,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const recommendedTracks: SpotifyTrack[] = await getRecommendations(
     token.access_token,
-    seedArtists,
     seedTracks,
+    seedArtists,
   );
   console.log(recommendedTracks);
 
