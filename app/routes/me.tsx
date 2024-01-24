@@ -18,7 +18,9 @@ async function getProfile(accessToken: string) {
     return profileData;
   } catch (error) {
     console.error(error);
-    throw new Error('Profile data load error.');
+    throw new Error('Could not load Profile data.', {
+      cause: error
+    });
   }
 }
 
