@@ -1,16 +1,14 @@
 import {
-  ActionFunctionArgs,
   LoaderFunctionArgs,
-  redirect,
 } from '@remix-run/node';
-import { Outlet, useLoaderData, Form, Link } from '@remix-run/react';
-import axios, { AxiosRequestConfig } from 'axios';
+import { Outlet, useLoaderData, Link } from '@remix-run/react';
+import axios from 'axios';
 import { getSession } from '~/session';
-import { SpotifyArtist, SpotifyProfile } from '~/spotify.interfaces';
+import { SpotifyProfile } from '~/spotify.interfaces';
 
 async function getProfile(accessToken: string) {
   try {
-    const response = await axios.get('https://api.spotify.com/v1/me', {
+    const response = await axios.get(`${process.env.SPOTIFY_API_BASE_URL}/me`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -32,7 +30,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return await getProfile(token.access_token);
 }
 
-const Me = () => {
+const Me: React.FC = () => {
   const data = useLoaderData<typeof loader>();
 
   return (
