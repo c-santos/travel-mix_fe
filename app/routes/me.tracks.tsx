@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-} from '@remix-run/node';
+import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import axios, { AxiosRequestConfig } from 'axios';
 import { getSession } from '~/session';
@@ -12,6 +9,7 @@ async function getTopTracks(accessToken: string) {
   const config: AxiosRequestConfig = {
     params: {
       limit: 5,
+      time_range: 'short_term',
     },
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -35,6 +33,7 @@ async function getTopArtists(accessToken: string) {
   const config: AxiosRequestConfig = {
     params: {
       limit: 5,
+      time_range: 'short_term',
     },
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -104,20 +103,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
     seedArtists,
     seedTracks,
   );
-  // console.log(recommendedTracks);
+  console.log(recommendedTracks);
 
   return { topTracks, topArtists, recommendedTracks };
 }
 
-
-const MeTracks = () => {
+const MeTracks: React.FC = () => {
   const { topTracks, topArtists, recommendedTracks } =
     useLoaderData<typeof loader>();
 
   return (
     <div style={{ fontFamily: 'sans-serif' }}>
       <div>
-        <h3>Top Tracks</h3>
+        <h3>Your Recent Top Tracks</h3>
         <ul>
           {topTracks.map((item) => {
             return (
@@ -130,7 +128,7 @@ const MeTracks = () => {
       </div>
 
       <div>
-        <h3>Top Artists</h3>
+        <h3>Your Recent Top Artists</h3>
         <ul>
           {topArtists.map((item) => {
             return <li key={item.id}>{item.name}</li>;
@@ -144,8 +142,9 @@ const MeTracks = () => {
           {recommendedTracks.map((item) => {
             return (
               <li key={item.id}>
-                <a href={item.external_urls.spotify}> 
-                {item.name} by {item.artists.map((artist) => `${artist.name} `)}
+                <a href={item.external_urls.spotify}>
+                  {item.name} by{' '}
+                  {item.artists.map((artist) => `${artist.name} `)}
                 </a>
               </li>
             );
