@@ -1,7 +1,7 @@
 export interface SpotifyAlbum {
   album_type: string;
   artists: SpotifyArtist[];
-  available_markets: string[];
+  available_markets?: string[];
   external_urls: {
     spotify: string;
   };
@@ -48,7 +48,7 @@ export interface SpotifyTrack {
   track_number: number;
   type: string;
   uri: string;
-  is_local: boolean;
+  is_local?: boolean;
 }
 
 export interface SpotifyImage {
@@ -102,7 +102,6 @@ export interface SpotifyPlaylistImage {
   url: string;
   width: number | null;
 }
-
 export interface SpotifyPlaylist {
   collaborative: boolean;
   description: string;
@@ -123,4 +122,48 @@ export interface SpotifyPlaylist {
   };
   type: string;
   uri: string;
+}
+export interface SpotifySearchResult_Playlist {
+  playlists: {
+    href: string;
+    limit: number | null;
+    next: string | null;
+    previous: string | null;
+    total: number;
+    offset: number;
+    items: SpotifyPlaylist[];
+  };
+}
+
+export interface SpotifyPlaylistDetails {
+  href: string;
+  items: SpotifyPlaylistTrack[];
+  limit?: number;
+  next?: string | null;
+  offset?: number;
+  previous?: string | null;
+  total?: number;
+}
+
+export interface SpotifyPlaylistTrack {
+  added_at: string;
+  added_by: SpotifyProfile;
+  is_local: string;
+  primary_color: null | string;
+  track: SpotifyTrack;
+  video_thumbnail: {
+    url: string | null;
+  };
+}
+
+export interface SpotifyRecommendationResult {
+  tracks: SpotifyTrack[];
+  seeds: {
+    initialPoolSize: number;
+    afterFilteringSize: number;
+    afterRelinkingSize: number;
+    id: string;
+    type: string;
+    href: string | null;
+  }[];
 }
