@@ -13,7 +13,12 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"]
+      "@/*": ["./app/*"],
+      "@routes/*": ["./app/routes/*"],
+      "@styles/*": ["./app/styles/*"],
+      "@apis/*": ["./app/apis/*"],
+      "@components/*": ["./app/components/*"],
+      "@constants/*": ["./app/constants/*"]
     },
 
     // Remix takes care of building everything in `remix build`.
