@@ -1,48 +1,77 @@
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { useActionData, Form } from "@remix-run/react";
-import axios, { AxiosRequestConfig } from "axios";
-import React from "react"
-import { getSession } from "~/session";
-import { SpotifyPlaylist, SpotifyArtist } from "~/spotify.interfaces";
+import { ActionFunctionArgs } from '@remix-run/node';
+import { useActionData, Form } from '@remix-run/react';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import React, { useState } from 'react';
+import { getSession } from '@/session.server';
+import { SpotifyPlaylistDetails } from '@constants/spotify.interfaces';
+import getTopTracks from '@/apis/spotify/getTopTracks';
+import getRecommendations from '@/apis/spotify/getRecommendations';
+import getChartPlaylist from '@/apis/spotify/getChartPlaylist';
+
+let destination: FormDataEntryValue | string | null = null;
+
+async function getPlaylistTrackIds(
+  playlistId: string,
+  accessToken: string,
+  limit: number = 3,
+) {
+  const config: AxiosRequestConfig = {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    params: {
+      limit: limit,
+    },
+  };
+
+  const response: AxiosResponse<SpotifyPlaylistDetails> = await axios.get(
+    `${process.env.SPOTIFY_API_BASE_URL}/playlists/${playlistId}/tracks`,
+    config,
+  );
+
+  console.log(response.data);
+
+  const playlistTracklist = response.data.items;
+
+  return playlistTracklist.map((item) => item.track.id);
+}
 
 export async function action({ request }: ActionFunctionArgs) {
   let session = await getSession(request.headers.get('cookie'));
-  const token = session.data;
-
-  const formData = await request.formData();
-  const queryString = formData.get('country');
-
+  const token = session.get('accessToken');
   try {
-    const config: AxiosRequestConfig = {
-      params: {
-        q: `Top 50 - ${queryString}`,
-        type: 'playlist',
-      },
-      headers: {
-        Authorization: `Bearer ${token.access_token}`,
-      },
-    };
-    const response = await axios.get(
-      `${process.env.SPOTIFY_API_BASE_URL}/search`,
-      config,
+    const formData = await request.formData();
+    const queryString = formData.get('country');
+    destination = queryString;
+
+    const playlist = await getChartPlaylist(queryString, token!);
+
+    console.log(playlist?.id);
+
+    const playlistTrackIds = await getPlaylistTrackIds(playlist!.id, token!);
+
+    const personalTracks = await getTopTracks(token!, 'short_term', 2);
+    const personalTrackIds = personalTracks.map((item) => item.id);
+
+    playlistTrackIds.push(...personalTrackIds);
+
+    console.log(playlistTrackIds);
+
+    const recommendedTracks = await getRecommendations(
+      token!,
+      playlistTrackIds,
     );
 
-    const result: SpotifyPlaylist[] = response.data.playlists.items;
-    // console.log(result);
+    console.log(recommendedTracks);
 
-    return result;
+    return { recommendedTracks, queryString };
   } catch (error) {
-    console.error(error);
+    throw new Error('Could not generate recommended tracks', { cause: error });
   }
 }
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  return null;
-}
-
 const MeMix = () => {
-  let searchResults = useActionData<SpotifyArtist[]>();
-  // console.log(searchResults);
+  const data = useActionData<typeof action>();
 
   return (
     <div>
@@ -52,8 +81,8 @@ const MeMix = () => {
         <button type="submit">Search</button>
       </Form>
       <ul>
-        {searchResults !== undefined
-          ? searchResults.map((item) => (
+        {data?.recommendedTracks !== undefined
+          ? data.recommendedTracks.map((item) => (
               <li key={item.id}>
                 <a href={item.external_urls.spotify}>{item.name}</a>
               </li>

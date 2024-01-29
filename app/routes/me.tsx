@@ -1,35 +1,19 @@
-import {
-  LoaderFunctionArgs,
-} from '@remix-run/node';
-import { Outlet, useLoaderData, Link } from '@remix-run/react';
-import axios from 'axios';
-import { getSession } from '~/session';
-import { SpotifyProfile } from '~/spotify.interfaces';
-
-async function getProfile(accessToken: string) {
-  try {
-    const response = await axios.get(`${process.env.SPOTIFY_API_BASE_URL}/me`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    const profileData: SpotifyProfile = response.data;
-
-    return profileData;
-  } catch (error) {
-    console.error(error);
-    throw new Error('Could not load Profile data.', {
-      cause: error
-    });
-  }
-}
+import { Link, Outlet, useLoaderData } from '@remix-run/react';
+import { LoaderFunctionArgs } from '@remix-run/node';
+import getProfile from '@/apis/spotify/getProfile';
+import { getSession } from '@/session.server';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   let session = await getSession(request.headers.get('cookie'));
+  const token = session.get('accessToken');
 
-  const token = session.data;
-
-  return await getProfile(token.access_token);
+  try {
+    return await getProfile(token!);
+  } catch (error) {
+    throw Error('Could not get Profile data.', {
+      cause: token,
+    });
+  }
 }
 
 const Me: React.FC = () => {

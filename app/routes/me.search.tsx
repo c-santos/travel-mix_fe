@@ -1,41 +1,15 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
 import { Form, useActionData } from '@remix-run/react';
-import axios, { AxiosRequestConfig } from 'axios';
-import React from 'react';
-import { getSession } from '~/session';
-import { SpotifyArtist, SpotifyPlaylist } from '~/spotify.interfaces';
+import { SpotifyArtist } from '@constants/spotify.interfaces';
+import searchForPlaylist from '@/apis/spotify/searchForPlaylist';
 
 export async function action({ request }: ActionFunctionArgs) {
-  let session = await getSession(request.headers.get('cookie'));
-  const token = session.data;
-
   const formData = await request.formData();
-  const queryString = formData.get('playlist');
+  const query = formData.get('playlist');
 
-  // console.log(queryString);
+  if (!query) throw new Error('Query string error.');
 
-  try {
-    const config: AxiosRequestConfig = {
-      params: {
-        q: queryString,
-        type: 'playlist',
-      },
-      headers: {
-        Authorization: `Bearer ${token.access_token}`,
-      },
-    };
-    const response = await axios.get(
-      `${process.env.SPOTIFY_API_BASE_URL}/search`,
-      config,
-    );
-
-    const result: SpotifyPlaylist[] = response.data.playlists.items;
-    // console.log(result);
-
-    return result;
-  } catch (error) {
-    console.error(error);
-  }
+  return await searchForPlaylist(query);
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
