@@ -5,9 +5,24 @@ import type {
   Session,
 } from '@remix-run/node';
 import { createCookieSessionStorage, redirect } from '@remix-run/node';
-import { Form, useLoaderData } from '@remix-run/react';
+import { Form, Link, useLoaderData } from '@remix-run/react';
 import axios from 'axios';
 import { commitSession, getSession, isTokenExpired } from '@/session.server';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Button, buttonVariants } from '@/components/ui/button';
+import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+} from '@/components/ui/navigation-menu';
+import { Music } from 'lucide-react';
 
 export const meta: MetaFunction = () => {
   return [
@@ -52,10 +67,46 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function Index() {
   return (
-    <div style={{ fontFamily: 'system-ui, sans-serif', lineHeight: '1.8' }}>
-      <Form method="post">
-        <button type="submit">Log in to Spotify</button>
-      </Form>
+    <div className="p-4">
+      {/* <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <Link
+              to={'/me/tracks'}
+              className={buttonVariants({ variant: 'link' })}
+            >
+              Tracks
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link
+              to={'/me/search'}
+              className={buttonVariants({ variant: 'link' })}
+            >
+              Search
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link
+              to={'/me/mix'}
+              className={buttonVariants({ variant: 'link' })}
+            >
+              Mix
+            </Link>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu> */}
+      <Card>
+        <CardHeader>
+          <CardTitle>✈️ Title</CardTitle>
+          <CardDescription>Generate your travel playlist.</CardDescription>
+        </CardHeader>
+        <CardFooter>
+          <Form method="post">
+            <Button type="submit">Log in with Spotify</Button>
+          </Form>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

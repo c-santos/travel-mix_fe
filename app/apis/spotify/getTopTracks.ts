@@ -1,15 +1,17 @@
 import { SpotifyTrack } from '@/constants/spotify.interfaces';
 import axios, { AxiosRequestConfig } from 'axios';
 
-type TopTracksArgs = {
+interface TopTracksArgs {
   accessToken: string;
-};
+  range?: 'short_term' | 'medium_term' | 'long_term';
+  limit?: number;
+}
 
 export default async function getTopTracks(
   accessToken: string,
-  range: string = 'short_term',
+  range: string = 'medium_term',
   limit: number = 5,
-) {
+): Promise<SpotifyTrack[]> {
   const config: AxiosRequestConfig = {
     params: {
       limit: limit,

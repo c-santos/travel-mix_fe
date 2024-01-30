@@ -7,6 +7,8 @@ import { SpotifyPlaylistDetails } from '@constants/spotify.interfaces';
 import getTopTracks from '@/apis/spotify/getTopTracks';
 import getRecommendations from '@/apis/spotify/getRecommendations';
 import getChartPlaylist from '@/apis/spotify/getChartPlaylist';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 let destination: FormDataEntryValue | string | null = null;
 
@@ -29,7 +31,7 @@ async function getPlaylistTrackIds(
     config,
   );
 
-  console.log(response.data);
+  // console.log(response.data);
 
   const playlistTracklist = response.data.items;
 
@@ -48,7 +50,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     console.log(playlist?.id);
 
-    const playlistTrackIds = await getPlaylistTrackIds(playlist!.id, token!);
+    const playlistTrackIds = await getPlaylistTrackIds(playlist!.id, token!, 3);
 
     const personalTracks = await getTopTracks(token!, 'short_term', 2);
     const personalTrackIds = personalTracks.map((item) => item.id);
@@ -74,17 +76,22 @@ const MeMix = () => {
   const data = useActionData<typeof action>();
 
   return (
-    <div>
-      <Form method="post">
-        <label>Search: </label>
-        <input type="search" name="country" placeholder="Country/City" />
-        <button type="submit">Search</button>
+    <div className="p-4">
+      <Form method="post" className="flex">
+        <h2 className="mt-1 scroll-m-20 text-3xl font-bold tracking-tight transition-colors first:mt-0">
+          Where to?
+        </h2>
+        <Input type="search" name="country" placeholder="Country/City" />
+        <Button type="submit">Search</Button>
       </Form>
+      <h3>{destination?.toString()}</h3>
       <ul>
         {data?.recommendedTracks !== undefined
           ? data.recommendedTracks.map((item) => (
               <li key={item.id}>
-                <a href={item.external_urls.spotify}>{item.name}</a>
+                <a href={item.external_urls.spotify}>
+                  {item.name} by {item.artists.map((artist) => artist.name)}
+                </a>
               </li>
             ))
           : null}
